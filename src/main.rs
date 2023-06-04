@@ -1,11 +1,14 @@
 use std::io::prelude::*;
 use std::net::TcpListener;
 
+mod database;
 mod models;
 mod parses;
+mod private;
 mod requests;
 mod responses;
 
+use crate::database::connection_to_mongo::connection_to_mongo;
 use crate::models::request::RequestError;
 use crate::parses::parse_request::parse_request;
 use crate::requests::handle_request::handle_request;
@@ -14,6 +17,8 @@ use crate::responses::generate_responses::generate_error_response;
 fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind("127.0.0.1:8080")?;
     println!("Server running on port 8080");
+
+    connection_to_mongo();
 
     for stream in listener.incoming() {
         let mut stream = match stream {
@@ -45,6 +50,7 @@ fn main() -> std::io::Result<()> {
             eprintln!("Error to send the response: {}", e);
         }
     }
+
     Ok(())
 }
 
